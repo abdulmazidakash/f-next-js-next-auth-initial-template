@@ -1,3 +1,5 @@
+//src/components/Navbar.jsx
+
 'use client';
 
 import { signOut, useSession } from 'next-auth/react';
@@ -11,7 +13,7 @@ export default function Navbar() {
 const pathname = usePathname();
 
   const { data: session, status } = useSession();
-  // console.log('navbar session --->', session);
+  console.log('navbar session --->', session);
 
   const navMenu = () => (
   <>
@@ -88,16 +90,14 @@ const pathname = usePathname();
       </div>
 
       <div className="navbar-end">
-        {status === 'loading' ? (
+        {status === "loading" ? (
           <span className="loading loading-spinner loading-md"></span>
-        ) : status === 'authenticated' ? (
+        ) : status === "authenticated" ? (
           <div className="flex items-center list-none gap-2">
-            <Link
-            href="/profile"
-            >
+            <Link href="/profile">
               <Image
                 title={session?.user?.name}
-                src={session?.user?.image || '/assets/default-avatar.png'}
+                src={session?.user?.image || "/assets/default-avatar.png"}
                 width={40}
                 height={40}
                 alt="user-logo"
@@ -105,15 +105,14 @@ const pathname = usePathname();
                 priority
               />
             </Link>
-            <li 
-			onClick={() => signOut()} 
-			className="btn  mr-2">Logout</li>
+            <li onClick={() => signOut()} className="btn mr-2">
+              Logout
+            </li>
           </div>
         ) : (
-          <>
-            {/* <Link href="/register" className="btn btn-error btn-soft">Register</Link> */}
-            <Link href="/login" className="btn    mr-2">Login</Link>
-          </>
+          <Link href="/login" className="btn mr-2">
+            Login
+          </Link>
         )}
       </div>
     </div>

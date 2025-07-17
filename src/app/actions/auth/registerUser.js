@@ -1,3 +1,5 @@
+//app/actions/auth/registerUser.js
+
 'use server';
 
 import bcrypt from 'bcrypt';
@@ -27,6 +29,7 @@ export const registerUser = async (payload) => {
 
   // Insert new user
   const response = await userCollection.insertOne(payload);
+  console.log('server side: register user response--->', response);
 
   if (response.acknowledged) {
     return { acknowledged: true, message: "User registered successfully" };

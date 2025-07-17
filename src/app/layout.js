@@ -26,9 +26,13 @@ export default function RootLayout({ children }) {
           <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           >
-          <Navbar/>
+          <div className="shadow">
+            <Navbar/>
+          </div>
           {children}
-          <Footer/>
+          <div className="shadow border-t border-gray-200">
+            <Footer/>
+          </div>
         </body>
       </NextAuthSessionProvider>
     </html>

@@ -1,3 +1,5 @@
+//app/login/components/LoginForm.jsx
+
 "use client";
 import React from "react";
 import { signIn, useSession } from "next-auth/react"
@@ -43,37 +45,37 @@ export default function LoginForm() {
 	}
   };
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-lg space-y-8">
+    <form onSubmit={handleSubmit} className="w-full max-w-md space-y-8 border border-gray-300 p-4 rounded-lg shadow mx-auto">
       <label className="form-control w-full">
         <div className="label w-full">
-          <span className="label-text  font-bold">Email</span>
+          <span className="label-text  text-black my-2 font-semibold">Email</span>
         </div>
         <input
           type="text"
           name="email"
-          placeholder="Type here"
+          placeholder="enter your email"
           className="input input-bordered w-full"
         />
       </label>
       <label className="form-control w-full">
         <div className="label w-full">
-          <span className="label-text font-bold">Password</span>
+          <span className="label-text text-black my-2 font-semibold">Password</span>
         </div>
         <input
           type="password"
           name="password"
-          placeholder="Type here"
+          placeholder="enter your password"
           className="input input-bordered w-full"
         />
       </label>
-      <button className="w-full h-12 bg-orange-500 text-white font-bold">
+      <button className="w-full h-12 font-bold hover:bg-slate-800 hover:text-white rounded-lg my-4 bg-white text-black border border-gray-300 hover:border hover:border-slate-800 transition-colors duration-300 cursor-pointer">
         Sign In
       </button>
       <p className="text-center">Or Sign In with</p>
       <SocialLogin />
       <p className="text-center">
         Already have an account?{" "}
-        <Link href="/register" className="text-orange-500 font-bold">
+        <Link href="/register" className="text-slate-800 hover:underline font-semibold">
           Register
         </Link>
       </p>
