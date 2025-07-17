@@ -1,19 +1,14 @@
-// app/lib/authOptions.js
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import { loginUser } from "@/app/actions/auth/loginUser";
 import dbConnect, { collectionNameObject } from "./dbConnect";
+import { ObjectId } from "mongodb";
 
 export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
-	//   credentials: {
-	// 	username: { label: "Username", type: "text", placeholder: "jsmith" },
-	// 	password: { label: "Password", type: "password" },
-	// 	email: { label: "Email", type: "email" }
-	// 	},
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
@@ -23,15 +18,16 @@ export const authOptions = {
         const result = await loginUser({ email, password });
 
         if (result.success) {
-          // Return user object in the format expected by NextAuth
           return {
-            id: result.user._id.toString(), // Ensure the ID is a string
+            id: result.user._id.toString(),
             name: result.user.name,
             email: result.user.email,
             image: result.user.image || null,
+            userId: result.user.userId,
+            role: result.user.role,
           };
         }
-        return null; // Return null if authentication fails
+        return null;
       },
     }),
     GoogleProvider({
@@ -47,25 +43,67 @@ export const authOptions = {
     signIn: "/login",
   },
   callbacks: {
-    async signIn({ user, account, profile, email, credentials}) {
-		// Check if the user is signing in with a provider
-      if (account) {
-        const { providerAccountId, provider } = account;
-        const { email:user_email, image, name } = user;
-        const userCollection = await dbConnect(collectionNameObject.usersCollection);
-        const isExistedUser = await userCollection.findOne({ providerAccountId });
+    async signIn({ user, account, profile }) {
+      const userCollection = await dbConnect(collectionNameObject.usersCollection);
 
-        if (!isExistedUser) {
-          const payload = { providerAccountId, provider, email:user_email, image, name };
-          await userCollection.insertOne(payload);
+      // Check if user exists by email for all providers
+      const existingUser = await userCollection.findOne({ email: user.email });
+
+      if (account.provider === "credentials") {
+        // For credentials-based login, rely on loginUser to handle authentication
+        if (existingUser) {
+          return true;
         }
+        return false;
+      } else {
+        // For social logins (Google, GitHub)
+        const { providerAccountId, provider } = account;
+        const { email: user_email, image, name } = user;
+
+        if (existingUser) {
+          // Update providerAccountId, provider, userId, and role if needed
+          if (!existingUser.providerAccountId || !existingUser.userId || !existingUser.role) {
+            await userCollection.updateOne(
+              { email: user_email },
+              {
+                $set: {
+                  providerAccountId,
+                  provider,
+                  userId: existingUser.userId || new ObjectId().toString(),
+                  role: existingUser.role || "user",
+                },
+              }
+            );
+          }
+          return true;
+        }
+
+        // Create new user for social login
+        const payload = {
+          _id: new ObjectId(),
+          userId: new ObjectId().toString(),
+          providerAccountId,
+          provider,
+          email: user_email,
+          image,
+          name,
+          role: "user",
+        };
+        await userCollection.insertOne(payload);
+        return true;
       }
-      return true;
     },
     async session({ session, user }) {
-      // Ensure the session includes the user ID
       if (user) {
-        session.user.id = user.id;
+        // Fetch user from database to ensure userId and role are included
+        const userCollection = await dbConnect(collectionNameObject.usersCollection);
+        const dbUser = await userCollection.findOne({ email: session.user.email });
+
+        if (dbUser) {
+          session.user.id = dbUser._id.toString();
+          session.user.userId = dbUser.userId;
+          session.user.role = dbUser.role;
+        }
       }
       return session;
     },

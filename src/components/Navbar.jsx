@@ -94,17 +94,25 @@ const pathname = usePathname();
           <span className="loading loading-spinner loading-md"></span>
         ) : status === "authenticated" ? (
           <div className="flex items-center list-none gap-2">
-            <Link href="/profile">
-              <Image
-                title={session?.user?.name}
-                src={session?.user?.image || "/assets/default-avatar.png"}
-                width={40}
-                height={40}
-                alt="user-logo"
-                className="rounded-full border border-gray-300 transition-all duration-200 cursor-pointer"
-                priority
-              />
-            </Link>
+            {session?.user?.image ? (
+              <Link href="/profile">
+                <Image
+                  title={session?.user?.name}
+                  src={session.user.image || '/public/user-static-image.webp'}
+                  width={40}
+                  height={40}
+                  alt="user-logo"
+                  className="rounded-full border border-gray-300 transition-all duration-200 cursor-pointer"
+                  priority
+                />
+              </Link>
+            ) : (
+              <Link href={'/profile'}>
+              <li className="font-semibold">{session?.user?.name}</li>        
+              </Link>
+
+            )}
+
             <li onClick={() => signOut()} className="btn mr-2">
               Logout
             </li>
@@ -115,6 +123,7 @@ const pathname = usePathname();
           </Link>
         )}
       </div>
+
     </div>
   );
 }

@@ -1,10 +1,9 @@
-// app/login/components/SocialLogin.jsx
-'use client';
+"use client";
 
-import { signIn, useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
-import toast from 'react-hot-toast';
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
+import toast from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 
@@ -15,7 +14,7 @@ export default function SocialLogin() {
   const handleSocialLogin = async (providerName) => {
     const toastId = toast.loading(`Signing in with ${providerName}...`);
     try {
-      const result = await signIn(providerName, { callbackUrl: '/' }, {redirect: false});
+      const result = await signIn(providerName, { callbackUrl: "/" }, { redirect: false });
 
       if (result?.error) {
         toast.error(`Failed to sign in with ${providerName}: ${result.error}`, { id: toastId });
@@ -29,9 +28,10 @@ export default function SocialLogin() {
   };
 
   useEffect(() => {
-    if (session?.status === 'authenticated') {
-      if (router.pathname !== '/') {
-        router.push('/');
+    if (session?.status === "authenticated") {
+      console.log("Session data:", session.data.user); // Debug session data
+      if (router.pathname !== "/") {
+        router.push("/");
         toast.success(`Logged in successfully as ${session?.data?.user?.email}`, { duration: 2000 });
       }
     }
@@ -39,17 +39,14 @@ export default function SocialLogin() {
 
   return (
     <div className="flex gap-4 items-center justify-center">
-      {/* GitHub */}
       <button
-        onClick={() => handleSocialLogin('github')}
+        onClick={() => handleSocialLogin("github")}
         className="btn text-2xl rounded-full p-2 shadow"
       >
         <FaGithub />
       </button>
-
-      {/* Google */}
       <button
-        onClick={() => handleSocialLogin('google')}
+        onClick={() => handleSocialLogin("google")}
         className="btn text-2xl rounded-full p-2 shadow"
       >
         <FcGoogle />
